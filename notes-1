@@ -1,0 +1,36 @@
+--> Install k8s cluster using kubeadm
+
+1. Run as root user:
+
+kubeadm init --pod-network-cidr 10.244.0.0/16 --apiserver-advertise-address=192.168.56.2 
+
+2. Then as non-root user:
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+3. Then deploy a pod n/w to the cluster - weave ;
+
+# https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
+
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+Then run the below command to validate:
+
+kubectl get pods --all-namespaces
+
+4. After have worker nodes join the cluster using commands here:
+
+You should now deploy a Pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  /docs/concepts/cluster-administration/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join <control-plane-host>:<control-plane-port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>
+
+  kubeadm join 192.168.56.2:6443 --token <token> --discovery-token-ca-cert-hash sha256:<hash>
